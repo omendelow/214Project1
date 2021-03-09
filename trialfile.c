@@ -16,7 +16,7 @@ int process_arguments(int argc, char** argv) {
 
 	else {
 		int page_width = atoi(argv[1]);
-		char buf[256];
+		char buf[15];
 
 
 		// check page width is valid
@@ -27,7 +27,7 @@ int process_arguments(int argc, char** argv) {
 		if (argc < 3) {
 			//page width was given but no filename- read from standard input
 			int bytes_read;
-			bytes_read = read(0,buf,256);
+			bytes_read = read(0,buf,15);
 			
 			if (bytes_read < 0) {
 				perror("Error: error reading file.");
@@ -37,8 +37,9 @@ int process_arguments(int argc, char** argv) {
 				//run wrap algorithm on buffer
 				write(1,buf,strlen(buf));
 				printf("\n");
-				if (bytes_read < 256) {bytes_read = -1;}
-				else {bytes_read = read(0,buf,256);}
+				memset(&buf[0], 0, sizeof(buf)); //clear buf
+				if (bytes_read < 15) {bytes_read = -1;}
+				else {bytes_read = read(0,buf,15);} 
 			}
 		}
 		
@@ -60,6 +61,7 @@ int process_arguments(int argc, char** argv) {
 			while (bytes_read > 0) {
 				//run wrap algorithm on buffer
 				write(1,buf,strlen(buf));
+				memset(&buf[0], 0, sizeof(buf)); //clear buf
 				bytes_read = read(fd, buf, 256);
 			}
 			
