@@ -40,15 +40,15 @@ int process_de(char* dir_name, char* de, int* page_width, char* buf) {
 	char de_wrap[100] = "";
 	snprintf(de_wrap, sizeof(de_wrap), "%s/wrap.%s", dir_name, de);
 	printf("%s\n",de_wrap);	
-	//int fd_wrap = O_TRUNC|O_CREAT
-/*
+	int fd_wrap = open(de_wrap, O_WRONLY|O_TRUNC|O_CREAT, S_IRWXU);
 	while (bytes_read > 0) {
 		//run wrap algorithm on buffer
-		write(1,buf,strlen(buf));
+		write(1,buf,bytes_read);
+		write(fd_wrap,buf,bytes_read);
 		memset(&buf[0], 0, sizeof(buf)); //clear buf
 		bytes_read = read(fd, buf, 256);
 	}
-*/
+	close(fd_wrap);
 	close(fd);
 	return EXIT_SUCCESS;
 }
@@ -96,7 +96,7 @@ int process_file(char* file_name, int* page_width, char* buf) {
 	}
 	while (bytes_read > 0) {
 		//run wrap algorithm on buffer
-		write(1,buf,strlen(buf));
+		write(1,buf,bytes_read);
 		memset(&buf[0], 0, sizeof(buf)); //clear buf
 		bytes_read = read(fd, buf, 256);
 	}
@@ -115,7 +115,7 @@ int process_standard_input(int* page_width, char* buf) {
 	}
 	while (bytes_read > 0) {
 		//run wrap algorithm on buffer
-		write(1,buf,strlen(buf));
+		write(1,buf,bytes_read);
 		printf("\n");
 		memset(&buf[0], 0, sizeof(buf)); //clear buf
 		if (bytes_read < 256) {bytes_read = -1;}
