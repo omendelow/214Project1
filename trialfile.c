@@ -7,8 +7,22 @@
 #include <fcntl.h>
 
 int process_directory(char* dir_name, int* page_width, char* buf) {
-	printf("hello!\n");
-	return 0;
+	DIR* directory_p = opendir(dir_name);
+	struct dirent* directory_entry_p;
+	while ((directory_entry_p = readdir(directory_p))) {
+		//puts directory_entry -> directory_name
+		if (!(strcmp(directory_entry_p->d_name, ".") == 0 || strcmp(directory_entry_p->d_name, "..") == 0)) {
+			printf("%lu %d %s\n",
+		        directory_entry_p->d_ino,
+		        directory_entry_p->d_type,
+		        directory_entry_p->d_name);
+		}
+	}
+	if (closedir(directory_p) == -1) {
+		perror("Error: Unable to close directory.");
+		exit(EXIT_FAILURE);
+	}
+	return EXIT_SUCCESS;
 }
 
 int is_directory(char *name) {
@@ -47,7 +61,7 @@ int process_file(char* file_name, int* page_width, char* buf) {
 		bytes_read = read(fd, buf, 256);
 	}
 	close(fd);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int process_standard_input(int* page_width, char* buf) {
@@ -67,7 +81,7 @@ int process_standard_input(int* page_width, char* buf) {
 		if (bytes_read < 256) {bytes_read = -1;}
 		else {bytes_read = read(0,buf,256);} 
 	}
-	return 0;	
+	return EXIT_SUCCESS;	
 }
 
 int check_input(int argc, char** argv) {
@@ -91,7 +105,6 @@ int check_input(int argc, char** argv) {
 			return process_file(name, &page_width, buf);
 		}
 	}
-	return 0;
 }
 
 int process_arguments(int argc, char** argv) {
