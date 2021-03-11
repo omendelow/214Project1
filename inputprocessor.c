@@ -6,25 +6,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-int process_directory(char* dir_name, int* page_width, char* buf) {
-	DIR* directory_p = opendir(dir_name);
-	struct dirent* directory_entry_p;
-	while ((directory_entry_p = readdir(directory_p))) {
-		//puts directory_entry -> directory_name
-		if (!(strcmp(directory_entry_p->d_name, ".") == 0 || strcmp(directory_entry_p->d_name, "..") == 0)) {
-			printf("%lu %d %s\n",
-		        directory_entry_p->d_ino,
-		        directory_entry_p->d_type,
-		        directory_entry_p->d_name);
-		}
-	}
-	if (closedir(directory_p) == -1) {
-		perror("Error: Unable to close directory.");
-		exit(EXIT_FAILURE);
-	}
-	return EXIT_SUCCESS;
-}
-
 int is_directory(char *name) {
 	struct stat data;
 	int err = stat(name, &data);
@@ -39,6 +20,48 @@ int is_directory(char *name) {
 		return 1;
 	}
 	return 0;
+}
+
+int process_de(char* file_name, int* page_width, char* buf) {
+	// page width and filename given
+	int fd = open(file_name, O_RDONLY);
+	if (fd < 0) {
+		perror("Error: File does not exist.");
+		exit(EXIT_FAILURE);
+	}
+	size_t bytes_read;
+	bytes_read = read(fd, buf, 256);
+	if (bytes_read < 0) {
+		perror("Error: error reading file.");
+		exit(EXIT_FAILURE);
+	}
+	while (bytes_read > 0) {
+		//run wrap algorithm on buffer
+		write(1,buf,strlen(buf));
+		memset(&buf[0], 0, sizeof(buf)); //clear buf
+		bytes_read = read(fd, buf, 256);
+	}
+	close(fd);
+	return EXIT_SUCCESS;
+}
+
+int process_directory(char* dir_name, int* page_width, char* buf) {
+	DIR* directory_p = opendir(dir_name);
+	struct dirent* directory_entry_p;
+	while ((directory_entry_p = readdir(directory_p))) {
+		//puts directory_entry -> directory_name
+		char* de = directory_entry_p->d_name;
+		if (!(strcmp(de, ".") == 0 || strcmp(de, "..") == 0)) {
+			char curr_filepath[100] = "";
+			snprintf(curr_filepath, sizeof(curr_filepath), "%s/%s", dir_name, de);
+			process_de(curr_filepath, page_width, buf);
+		}
+	}
+	if (closedir(directory_p) == -1) {
+		perror("Error: Unable to close directory.");
+		exit(EXIT_FAILURE);
+	}
+	return EXIT_SUCCESS;
 }
 
 int process_file(char* file_name, int* page_width, char* buf) {
