@@ -22,8 +22,10 @@ int is_directory(char *name) {
 	return 0;
 }
 
-int process_de(char* file_name, int* page_width, char* buf) {
+int process_de(char* dir_name, char* de, int* page_width, char* buf) {
 	// page width and filename given
+	char file_name[100] = "";
+	snprintf(file_name, sizeof(file_name), "%s/%s", dir_name, de);
 	int fd = open(file_name, O_RDONLY);
 	if (fd < 0) {
 		perror("Error: File does not exist.");
@@ -35,12 +37,18 @@ int process_de(char* file_name, int* page_width, char* buf) {
 		perror("Error: error reading file.");
 		exit(EXIT_FAILURE);
 	}
+	char de_wrap[100] = "";
+	snprintf(de_wrap, sizeof(de_wrap), "%s/wrap.%s", dir_name, de);
+	printf("%s\n",de_wrap);	
+	//int fd_wrap = O_TRUNC|O_CREAT
+/*
 	while (bytes_read > 0) {
 		//run wrap algorithm on buffer
 		write(1,buf,strlen(buf));
 		memset(&buf[0], 0, sizeof(buf)); //clear buf
 		bytes_read = read(fd, buf, 256);
 	}
+*/
 	close(fd);
 	return EXIT_SUCCESS;
 }
@@ -50,11 +58,20 @@ int process_directory(char* dir_name, int* page_width, char* buf) {
 	struct dirent* directory_entry_p;
 	while ((directory_entry_p = readdir(directory_p))) {
 		//puts directory_entry -> directory_name
-		char* de = directory_entry_p->d_name;
-		if (!(strcmp(de, ".") == 0 || strcmp(de, "..") == 0)) {
-			char curr_filepath[100] = "";
-			snprintf(curr_filepath, sizeof(curr_filepath), "%s/%s", dir_name, de);
-			process_de(curr_filepath, page_width, buf);
+		char* de= directory_entry_p->d_name;
+		//check for . and ..
+		if (!((strcmp(de, ".") == 0) || (strcmp(de, "..") == 0))) {
+			//check that file does not begin with "wrap"
+			if (strlen(de) > 3) {
+				char sub[4] = "";
+				strncpy(sub, de, 4);
+				if (!(strcmp(sub,"wrap") == 0)) {
+					process_de(dir_name, de, page_width, buf);
+				}
+			}
+			else {
+				process_de(dir_name, de, page_width, buf);
+			}
 		}
 	}
 	if (closedir(directory_p) == -1) {
