@@ -6,10 +6,29 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+int process_directory(char* dir_name, int* page_width, char* buf) {
+	printf("hello!\n");
+	return 0;
+}
 
-int process_file(char** argv, int* page_width, char* buf) {
+int is_directory(char *name) {
+	struct stat data;
+	int err = stat(name, &data);
+	// should confirm err == 0
+	if (err) {
+		perror("Error.");
+		exit(EXIT_FAILURE);
+	}
+	if (S_ISDIR(data.st_mode)) {
+		// S_ISDIR macro is true if the st_mode says the file is a directory
+		// S_ISREG macro is true if the st_mode says the file is a regular file
+		return 1;
+	}
+	return 0;
+}
+
+int process_file(char* file_name, int* page_width, char* buf) {
 	// page width and filename given
-	char* file_name = argv[2];
 	int fd = open(file_name, O_RDONLY);
 	if (fd < 0) {
 		perror("Error: File does not exist.");
@@ -62,9 +81,15 @@ int check_input(int argc, char** argv) {
 	if (argc < 3) {
 		return process_standard_input(&page_width, buf);
 	}
-	// check if directory
 	else {
-		return process_file(argv, &page_width, buf);
+		char* name = argv[2];
+		// check if directory or file
+		if (is_directory(name) == 1) {
+			return process_directory(name, &page_width, buf);
+		}
+		else {
+			return process_file(name, &page_width, buf);
+		}
 	}
 	return 0;
 }
