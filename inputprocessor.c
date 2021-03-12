@@ -66,7 +66,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
         else if (!isspace(buffer[start]) && word != NULL) {
             while (!isspace(buffer[end])) {
                 end++;
-                if (end == bytes) {
+                if (end >= bytes) {
                     break;
                 }
                 //check for 2 newlines in a row
@@ -116,7 +116,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
                 start = end + 1;
                 end = start;
             }
-            else if (end == bytes) {
+            else if (end >= bytes) {
                 continue;
             }
         }
@@ -131,7 +131,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
         while (end != bytes) {
             while (!isspace(buffer[end])) {
                 end++;
-                if (end == bytes) {
+                if (end >= bytes) {
                     break;
                 }
                 //check for 2 newlines in a row
@@ -156,7 +156,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
                 error = 1;
             }
             //end pointer reached end of buffer so store partial word
-            else if (end == size) {
+            else if (end >= size) {
                 word = malloc((wordLength+1)*sizeof(char));
                 memcpy(word, &buffer[start], wordLength);
                 word[wordLength] = '\0';
@@ -187,7 +187,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
             }
             start = end + 1;
             end = start;
-            if (end == size) {
+            if (end >= size) {
                 break;
             }
         }
