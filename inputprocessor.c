@@ -222,7 +222,7 @@ int process_de(char* dir_name, char* de, unsigned page_width) {
 	snprintf(de_wrap, sizeof(de_wrap), "%s/wrap.%s", dir_name, de);
 	int fd_wrap = open(de_wrap, O_WRONLY|O_TRUNC|O_CREAT, S_IRWXU);
 	int error = wrap(page_width, fd, fd_wrap);
-	if (erorr == 1) {
+	if (error == 1) {
 		close(fd_wrap);
 		close(fd);
 		perror("Error: Page width exceeded.");
@@ -269,8 +269,8 @@ int process_file(char* file_name, unsigned page_width) {
 		exit(EXIT_FAILURE);
 	}
 	int error = wrap(page_width, fd, 1);
-	if (erorr == 1) {
-		close(fd)
+	if (error == 1) {
+		close(fd);
 		perror("Error: Page width exceeded.");
 		exit(EXIT_FAILURE);
 	}
@@ -281,10 +281,11 @@ int process_file(char* file_name, unsigned page_width) {
 int process_standard_input(unsigned page_width) {
 	//page width was given but no filename- read from standard input
 	int error = wrap(page_width, 0, 1);
-	if (erorr == 1) {
+	if (error == 1) {
 		perror("Error: Page width exceeded.");
 		exit(EXIT_FAILURE);
 	}
+	return EXIT_SUCCESS;
 }
 
 int check_input(int argc, char** argv) {
