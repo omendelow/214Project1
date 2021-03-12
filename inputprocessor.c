@@ -152,7 +152,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
             if (wordLength > width) {
                 write(output_fd, "\n", 1);
                 write(output_fd, &buffer[start], wordLength);
-                // write(output_fd, "\n", 1);
+                characters += wordLength;
                 error = 1;
             }
             //end pointer reached end of buffer so store partial word
@@ -313,4 +313,3 @@ int process_arguments(int argc, char** argv) {
 int main(int argc, char **argv) {
 	return process_arguments(argc, argv);
 }
-
