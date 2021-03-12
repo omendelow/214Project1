@@ -1,0 +1,4 @@
+Akshar Patel aap279
+Oren Mendelow om144
+
+In order to test our program, we tried different widths, buffer sizes, testcases, different sizes of texts, as well as different input and output styles. We did our best to come up with edge cases and test those, such as partial words at the end of a buffer, files in a directory that begin with '.', '..', or 'wrap', etc. We determined that our program is correct after successfully passing all of those testcases that we could think of.
