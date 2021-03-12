@@ -22,7 +22,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
     int characters = 0; //number of characters in a line
     int newLine = 0; //variable to indicate if a newline needs to be inserted
     while ((bytes = read(input_fd, buffer, size)) > 0) {
-		printf("length: %d, width: %d\n", (characters+ wordLength), width);
+		// printf("length: %d, width: %d\n", (characters+ wordLength), width);
         start = 0;
         end = 0;
         //second case of new line: last element of buffer was \n
@@ -40,7 +40,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
             if (wordLength > width) {
                 write(output_fd, "\n", 1);
                 write(output_fd, word, wordLength);
-                write(output_fd, "\n", 1);
+                characters += wordLength;
                 error = 1;
             }
             else if (characters + wordLength <= width) {
@@ -95,7 +95,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
                 if (wordLength > width) {
                     write(output_fd, "\n", 1);
                     write(output_fd, word, wordLength);
-                    write(output_fd, "\n", 1);
+                    characters += wordLength;
                     error = 1;
                 }
                 else if (characters + wordLength <= width) {
@@ -121,13 +121,6 @@ int wrap(unsigned width, int input_fd, int output_fd) {
                 continue;
             }
         }
-
-        // if (buffer[0] == '\n' && buffer[1] == '\n') {
-        //     characters = 0;
-        //     write(output_fd, "\n", 1);
-        //     write(output_fd, "\n", 1);
-        //     newLine = 0;
-        // }
         
         while (end != bytes) {
             while (!isspace(buffer[end])) {
@@ -149,19 +142,19 @@ int wrap(unsigned width, int input_fd, int output_fd) {
             }
             
             wordLength = end - start;
-            
-            if (wordLength > width) {
-                write(output_fd, "\n", 1);
-                write(output_fd, &buffer[start], wordLength);
-                characters += wordLength;
-                error = 1;
-            }
+
             //end pointer reached end of buffer so store partial word
-            else if (end >= size) {
+            if (end >= size) {
                 word = malloc((wordLength+1)*sizeof(char));
                 memcpy(word, &buffer[start], wordLength);
                 word[wordLength] = '\0';
                 break;
+            }
+            else if (wordLength > width) {
+                write(output_fd, "\n", 1);
+                write(output_fd, &buffer[start], wordLength);
+                characters += wordLength;
+                error = 1;
             }
             else if (start != end) {
                 if (characters + wordLength <= width) {
