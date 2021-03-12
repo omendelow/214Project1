@@ -13,7 +13,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
 
     int error = 0; //variable to check if wordLength > width
     int bytes;
-    int size = 128*sizeof(char); //buffer size
+    int size = 256*sizeof(char); //buffer size
     char *buffer = malloc(size);
     char *word = NULL; //stores partial word from the end of buffer
     int start = 0;  //starting index of a word
@@ -22,6 +22,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
     int characters = 0; //number of characters in a line
     int newLine = 0; //variable to indicate if a newline needs to be inserted
     while ((bytes = read(input_fd, buffer, size)) > 0) {
+		printf("length: %d, width: %d\n", (characters+ wordLength), width);
         start = 0;
         end = 0;
         //second case of new line: last element of buffer was \n
@@ -193,7 +194,7 @@ int wrap(unsigned width, int input_fd, int output_fd) {
         }
 
     }
-    
+    write(output_fd, "\n", 1);
     free(buffer);
     if (error == 1) return 1;
     return 0;
@@ -243,7 +244,7 @@ int process_directory(char* dir_name, unsigned page_width) {
 		if (!((strcmp(de, ".") == 0) || (strcmp(de, "..") == 0))) {
 			//check that file does not begin with "wrap"
 			if (strlen(de) > 3) {
-				char sub[4] = "";
+				char sub[5] = "";
 				strncpy(sub, de, 4);
 				if (!(strcmp(sub,"wrap") == 0)) {
 					process_de(dir_name, de, page_width);
